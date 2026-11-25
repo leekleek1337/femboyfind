@@ -1,0 +1,56 @@
+[
+  {
+    "name": "eporner",
+    "url_template": "https://www.eporner.com/api/v2/video/search/?query={query}&per_page={limit}&page={page}&order=most-popular&thumbs=default",
+    "results_path": "videos",
+    "fields": {
+      "title": "title",
+      "url": "url",
+      "thumbnail": "default_thumb.src",
+      "duration": "length_min",
+      "tags": "keywords"
+    }
+  },
+  {
+    "name": "pornhub",
+    "url_template": "https://www.pornhub.com/webmasters/search?search={query}&page={page}&thumbsize=medium",
+    "results_path": "videos",
+    "fields": {
+      "title": "title",
+      "url": "url",
+      "thumbnail": "default_thumb",
+      "duration": "duration",
+      "tags": "tags"
+    }
+  },
+  {
+    "name": "redtube",
+    "url_template": "https://api.redtube.com/?data=redtube.Videos.searchVideos&output=json&search={query}&page={page}&thumbsize=medium",
+    "results_path": "videos",
+    "fields": {
+      "title": "video.title",
+      "url": "video.url",
+      "thumbnail": "video.default_thumb",
+      "duration": "video.duration",
+      "tags": "video.tags"
+    }
+  },
+  {
+    "type": "html",
+    "name": "xhamster",
+    "url_template": "https://xhamster.com/search/{query}?page={page}",
+    "video_url_pattern": "^/videos/"
+  },
+  {
+    "type": "html",
+    "name": "xvideos",
+    "url_template": "https://www.xvideos.com/?k={query}&p={page_index}",
+    "video_url_pattern": "^/video\\."
+  },
+  {
+    "type": "html",
+    "name": "xnxx",
+    "url_template": "https://www.xnxx.com/search/{query}/{page_index}",
+    "video_url_pattern": "^/video-"
+  }
+]
