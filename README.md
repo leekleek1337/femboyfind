@@ -7,8 +7,7 @@
 > запросы, связанные с несовершеннолетними, блокируются. Используйте источники
 > только законно и соблюдайте условия их использования.
 
-[Исходный код на GitHub](https://github.com/leekleek1337/femboyfind) ·
-[Пакет на PyPI](https://pypi.org/project/femboyfind/)
+[Исходный код на GitHub](https://github.com/leekleek1337/femboyfind)
 
 ## Возможности
 
@@ -24,11 +23,22 @@ CAPTCHA или другие ограничения доступа. Измене�
 
 ## Установка
 
+Пакет пока не опубликован на PyPI. Установить текущую версию можно напрямую
+из GitHub:
+
 ```bash
-python -m pip install femboyfind
+python -m pip install "git+https://github.com/leekleek1337/femboyfind.git"
 ```
 
-Для разработки из клона репозитория:
+Либо клонируйте репозиторий и установите проект локально:
+
+```bash
+git clone https://github.com/leekleek1337/femboyfind.git
+cd femboyfind
+python -m pip install .
+```
+
+Для разработки используйте editable-установку:
 
 ```bash
 python -m pip install -e .
@@ -144,10 +154,10 @@ HTML-шаблон также поддерживает `{page_index}` — ном�
 
 В репозитории настроен GitHub Actions workflow:
 [`publish.yml`](https://github.com/leekleek1337/femboyfind/blob/main/.github/workflows/publish.yml).
-Он запускает тесты для Python 3.9 и 3.14 при push и pull request в `main`.
-Публикация запускается автоматически при создании опубликованного GitHub
-Release; workflow собирает пакет и отправляет его на PyPI через Trusted
-Publishing. API-токен PyPI в GitHub Secrets не нужен.
+Он запускает тесты для Python 3.9 и 3.14 при push и pull request в `main`, а
+также при GitHub Release. Публикация запускается автоматически при создании
+опубликованного GitHub Release: workflow собирает пакет и отправляет его на
+PyPI через Trusted Publishing. API-токен PyPI в GitHub Secrets не нужен.
 
 ### Однократная настройка Trusted Publishing
 
