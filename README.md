@@ -3,71 +3,79 @@
 **femboyfind** — Python-библиотека и CLI для агрегированного поиска по сайтам
 с контентом для взрослых. Требуется Python 3.9 или новее.
 
-> **Только для совершеннолетних (18+).** Перед поиском CLI просит подтвердить
-> возраст. Запросы, указывающие на несовершеннолетних, блокируются. Используйте
-> источники только законно и соблюдайте их правила и условия использования.
+> **Только для совершеннолетних (18+).** CLI требует подтверждение возраста,
+> запросы, связанные с несовершеннолетними, блокируются. Используйте источники
+> только законно и соблюдайте условия их использования.
+
+[Исходный код на GitHub](https://github.com/leekleek1337/femboyfind) ·
+[Пакет на PyPI](https://pypi.org/project/femboyfind/)
 
 ## Возможности
 
-- Поиск по нескольким источникам с объединением и удалением дубликатов.
-- Встроенный список из шести сайтов: Eporner, Pornhub, RedTube, xHamster,
-  XVideos и XNXX.
-- Поддержка JSON API и публичных HTML-страниц поиска.
-- Настраиваемый список источников в `providers.json`; без `--providers`
-  используется конфигурация, включённая в пакет.
-- Вывод в обычном или JSON-формате.
+- Ищет сразу по нескольким сайтам и объединяет найденные результаты.
+- Встроенные источники: Eporner, Pornhub, RedTube, xHamster, XVideos и XNXX.
+- Поддерживает JSON API и публичные HTML-страницы поиска.
+- Позволяет использовать собственный список провайдеров в `providers.json`.
+- Выводит результаты в обычном или JSON-формате.
 
 HTML-провайдеры читают доступные публичные страницы и не обходят авторизацию,
-CAPTCHA или другие ограничения доступа. Изменения в разметке сайта могут
-временно нарушить такой источник.
+CAPTCHA или другие ограничения доступа. Изменения разметки сайтов могут
+временно нарушить работу источника.
 
 ## Установка
-
-Установка опубликованного пакета с PyPI:
 
 ```bash
 python -m pip install femboyfind
 ```
 
-Для разработки из локальной копии репозитория:
+Для разработки из клона репозитория:
 
 ```bash
 python -m pip install -e .
 ```
 
-## CLI
+## Быстрый старт: командная строка
 
-Запустить поиск с встроенными источниками:
+Поиск по встроенному списку сайтов:
 
 ```bash
 femboyfind cosplay --i-am-18
 ```
 
-Основные параметры:
-
-| Параметр | Назначение |
-| --- | --- |
-| `--providers PATH` | Использовать свой файл конфигурации вместо встроенного списка |
-| `--limit N` | Максимум результатов (по умолчанию `20`) |
-| `--page N` | Номер страницы (по умолчанию `1`) |
-| `--exclude WORD [...]` | Исключить результаты по словам в заголовке или тегах |
-| `--json` | Вывести результаты в JSON |
-| `--i-am-18` | Подтвердить, что пользователю не менее 18 лет |
-
-Пример с собственной конфигурацией:
+По умолчанию к запросу добавляется `femboy`. Чтобы сохранить результаты в JSON:
 
 ```bash
-femboyfind cosplay --providers providers.json --i-am-18
+femboyfind cosplay --json --i-am-18
 ```
 
-## Python API
+Основные параметры:
+
+| Параметр | Описание |
+| --- | --- |
+| `--providers PATH` | Путь к пользовательскому JSON-файлу провайдеров. Заменяет список по умолчанию |
+| `--limit N` | Максимум результатов, по умолчанию `20` |
+| `--page N` | Номер страницы, по умолчанию `1` |
+| `--exclude WORD [WORD ...]` | Исключить результаты, содержащие слова в заголовке или тегах |
+| `--json` | Вывести результаты как JSON |
+| `--i-am-18` | Подтвердить, что вам не менее 18 лет |
+
+Например, исключить результаты с указанными словами:
+
+```bash
+femboyfind cosplay --exclude amateur compilation --i-am-18
+```
+
+## Использование из Python
 
 ```python
 from femboyfind import JsonApiProvider, SearchClient
 
 provider = JsonApiProvider(
     name="example",
-    url_template="https://api.example.com/search?q={query}&page={page}&limit={limit}",
+    url_template=(
+        "https://api.example.com/search"
+        "?q={query}&page={page}&limit={limit}"
+    ),
     results_path="data.videos",
     fields={
         "title": "title",
@@ -77,15 +85,22 @@ provider = JsonApiProvider(
     },
 )
 
+# По умолчанию библиотека добавляет к запросу слово "femboy".
 client = SearchClient([provider])
 for result in client.search("cosplay", limit=10):
-    print(result.title, result.url)
+    print(result.source, result.title, result.url)
 ```
 
-## Конфигурация источников
+Чтобы отключить добавление базового слова, задайте его пустым:
 
-`providers.json` — JSON-массив. Для API укажите шаблон URL, путь к списку
-результатов и соответствие полей:
+```python
+client = SearchClient([provider], base_term="")
+```
+
+## Пользовательские провайдеры
+
+Параметр `--providers` принимает путь к JSON-массиву. Для JSON API объект
+провайдера задаёт шаблон URL, путь к списку результатов и пути к нужным полям:
 
 ```json
 [
@@ -103,25 +118,59 @@ for result in client.search("cosplay", limit=10):
 ]
 ```
 
-В `url_template` доступны `{query}`, `{page}` и `{limit}`. `results_path` и
-значения `fields` задаются путями через точку; числовой сегмент выбирает элемент
-списка. Для HTML-поиска укажите тип, URL и регулярное выражение для ссылок на
-видео:
+В `url_template` поддерживаются `{query}`, `{page}` и `{limit}`. Пути в
+`results_path` и `fields` разделяются точками; числовой сегмент выбирает
+элемент списка.
+
+Для HTML-поиска укажите `"type": "html"`, шаблон поисковой страницы и
+регулярное выражение для путей ссылок на видео:
 
 ```json
-{
-  "type": "html",
-  "name": "example",
-  "url_template": "https://example.com/search/{query}?page={page}",
-  "video_url_pattern": "^/videos/"
-}
+[
+  {
+    "type": "html",
+    "name": "example",
+    "url_template": "https://example.com/search/{query}?page={page}",
+    "video_url_pattern": "^/videos/"
+  }
+]
 ```
 
-Для HTML-провайдера также доступны `{page_index}` (нумерация с нуля) и
-`{limit}`. Полная конфигурация с готовыми сайтами находится в файле
-`providers.json` репозитория.
+HTML-шаблон также поддерживает `{page_index}` — номер страницы с нуля — и
+`{limit}`. Готовая конфигурация встроенных источников находится в
+[`providers.json`](https://github.com/leekleek1337/femboyfind/blob/main/providers.json).
 
-## Разработка и тесты
+## Публикация на PyPI
+
+В репозитории настроен GitHub Actions workflow:
+[`publish.yml`](https://github.com/leekleek1337/femboyfind/blob/main/.github/workflows/publish.yml).
+Он запускает тесты для Python 3.9 и 3.14 при push и pull request в `main`.
+Публикация запускается автоматически при создании опубликованного GitHub
+Release; workflow собирает пакет и отправляет его на PyPI через Trusted
+Publishing. API-токен PyPI в GitHub Secrets не нужен.
+
+### Однократная настройка Trusted Publishing
+
+1. На PyPI откройте **Account settings → Publishing**. Добавьте **pending
+   publisher** для нового проекта либо настройте Trusted Publisher в настройках
+   уже созданного проекта `femboyfind`.
+2. Укажите:
+   - Owner: `leekleek1337`
+   - Repository: `femboyfind`
+   - Workflow filename: `publish.yml`
+   - Environment name: `pypi`
+3. В GitHub откройте **Settings → Environments** и создайте environment с именем
+   `pypi`.
+4. Убедитесь, что версия в `pyproject.toml` ещё не публиковалась. Создайте GitHub
+   Release с тегом, соответствующим версии, например `v0.1.0`, и опубликуйте его.
+5. Проверьте ход сборки и публикации во вкладке **Actions** репозитория.
+
+Каждую новую версию нужно указать в `pyproject.toml` и опубликовать под новым
+тегом/релизом. Версии, уже загруженные в PyPI, повторно загрузить нельзя.
+
+Подробнее: [Trusted Publishing на PyPI](https://docs.pypi.org/trusted-publishers/using-a-publisher/).
+
+## Тесты
 
 Из корня репозитория:
 
@@ -133,4 +182,4 @@ python -m pytest
 
 ## Лицензия
 
-MIT. См. [`pyproject.toml`](./pyproject.toml).
+MIT.
